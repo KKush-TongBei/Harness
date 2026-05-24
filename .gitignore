@@ -8,3 +8,10 @@ outputs/
 *.log
 .DS_Store
 .cursor/
+
+# Model weights (do not commit)
+*.safetensors
+*.bin
+*.pth
+*.pth.tar
+weights/

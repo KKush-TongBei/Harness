@@ -12,7 +12,7 @@ class TruForClient:
 
     async def health(self) -> bool:
         """TruFor has no /health; probe with OPTIONS or treat 405/422 as alive."""
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, trust_env=False) as client:
             try:
                 resp = await client.post(f"{self.base_url}/score")
                 return resp.status_code in (400, 422, 503)
@@ -24,7 +24,7 @@ class TruForClient:
         if not path.is_file():
             raise FileNotFoundError(f"Image not found: {path}")
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
             with path.open("rb") as f:
                 resp = await client.post(
                     f"{self.base_url}/score",

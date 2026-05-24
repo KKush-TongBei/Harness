@@ -13,7 +13,7 @@ class ToolRegistry:
     qwen_base: str = "http://127.0.0.1:8000"
     trufor_base: str = "http://127.0.0.1:8001"
     rag_base: str = "http://127.0.0.1:8002"
-    qwen_timeout: float = 300.0
+    qwen_timeout: float = 1800.0
     trufor_timeout: float = 120.0
     rag_timeout: float = 30.0
 

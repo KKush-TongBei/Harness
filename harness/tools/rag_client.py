@@ -43,13 +43,13 @@ class RagClient:
         self.timeout = timeout
 
     async def health(self) -> dict:
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
             resp = await client.get(f"{self.base_url}/health")
             resp.raise_for_status()
             return resp.json()
 
     async def search(self, query: str, top_k: int = 3) -> list[Anchor]:
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
             resp = await client.post(
                 f"{self.base_url}/search",
                 json={"query": query, "top_k": top_k},
