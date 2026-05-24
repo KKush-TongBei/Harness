@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "id": "military_demo_01",
+      "image": "military_demo_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "合法军事装备展示",
+      "notes": "模拟公开日坦克展示场景，TruFor 可能因压缩误报"
+    },
+    {
+      "id": "naval_parade_01",
+      "image": "naval_parade_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "海军舰艇开放日",
+      "notes": "军舰与军港场景"
+    },
+    {
+      "id": "historical_war_01",
+      "image": "historical_war_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "历史战争纪实摄影",
+      "notes": "低分辨率胶片颗粒模拟"
+    },
+    {
+      "id": "press_conference_01",
+      "image": "press_conference_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "政府新闻发布会",
+      "notes": "官方发布会标准构图"
+    },
+    {
+      "id": "disaster_relief_01",
+      "image": "disaster_relief_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "灾害救援新闻",
+      "notes": "救援现场记者拍摄"
+    },
+    {
+      "id": "sports_event_01",
+      "image": "sports_event_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "体育赛事转播",
+      "notes": "JPEG 压缩与运动场景"
+    },
+    {
+      "id": "medical_public_01",
+      "image": "medical_public_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "公共卫生科普",
+      "notes": "官方健康宣传配图"
+    },
+    {
+      "id": "social_compress_01",
+      "image": "social_compress_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "社交媒体压缩图",
+      "notes": "多次转发压缩痕迹"
+    }
+  ]
+}
