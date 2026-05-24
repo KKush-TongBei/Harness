@@ -99,6 +99,8 @@ class ExecutionLoop:
         if save:
             self.storage.save(state)
         return state
+
+    async def run_parallel_detect_and_rag(
         self, image_path: str, description: str
     ) -> tuple[list, float]:
         """Optional parallel Step2+3 helper."""
