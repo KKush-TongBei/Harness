@@ -3,8 +3,26 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-QWEN_DIR="${QWEN_DIR:-/Applications/School/Qwen-VL-master}"
-TRUFOR_DIR="${TRUFOR_DIR:-/Applications/School/computer/temporary/TruFor/test_docker}"
+
+if [[ -z "${QWEN_DIR:-}" ]]; then
+  for candidate in "$HOME/001/Qwen-2B" "/Applications/School/Qwen-VL-master"; do
+    if [[ -d "$candidate" ]]; then
+      QWEN_DIR="$candidate"
+      break
+    fi
+  done
+  QWEN_DIR="${QWEN_DIR:-/Applications/School/Qwen-VL-master}"
+fi
+
+if [[ -z "${TRUFOR_DIR:-}" ]]; then
+  for candidate in "$HOME/001/TruFor/test_docker" "/Applications/School/computer/temporary/TruFor/test_docker"; do
+    if [[ -d "$candidate" ]]; then
+      TRUFOR_DIR="$candidate"
+      break
+    fi
+  done
+  TRUFOR_DIR="${TRUFOR_DIR:-/Applications/School/computer/temporary/TruFor/test_docker}"
+fi
 
 QWEN_URL="${QWEN_URL:-http://127.0.0.1:8000}"
 TRUFOR_URL="${TRUFOR_URL:-http://127.0.0.1:8001}"
@@ -31,7 +49,8 @@ rag_ok=0
 
 check_url "Qwen"   "$QWEN_URL/health" && qwen_ok=1 || true
 # TruFor has no /health; POST without file returns 422/400 when alive
-if curl -sf -o /dev/null -w "%{http_code}" -X POST "$TRUFOR_URL/score" 2>/dev/null | grep -qE '^(400|422|503)$'; then
+trufor_code="$(curl -s -o /dev/null -w "%{http_code}" -X POST "$TRUFOR_URL/score" 2>/dev/null || echo "000")"
+if echo "$trufor_code" | grep -qE '^(400|422|503)$'; then
   echo "  [OK]   TruFor ($TRUFOR_URL)"
   trufor_ok=1
 else
@@ -54,12 +73,12 @@ echo "# Terminal 2 — Qwen3-VL-2B (port 8000)"
 echo "cd \"$QWEN_DIR\""
 echo "# Download weights first if missing:"
 echo "# huggingface-cli download Qwen/Qwen3-VL-2B-Instruct --local-dir ./Qwen3-VL-2B"
-echo "QWEN_CPU=true uvicorn app.main:app --host 127.0.0.1 --port 8000"
+echo "uvicorn app.main:app --host 127.0.0.1 --port 8000"
 echo
 echo "# Terminal 3 — TruFor (port 8001)"
 echo "cd \"$TRUFOR_DIR/src\""
 echo "# Download weights first if missing:"
-echo "cd \"$TRUFOR_DIR\" && bash docker_build.sh  # or manually download to weights/"
-echo "TRUFOR_DEVICE=cpu uvicorn api_server:app --host 127.0.0.1 --port 8001"
+echo "cd \"$TRUFOR_DIR\" && wget -q -c https://www.grip.unina.it/download/prog/TruFor/TruFor_weights.zip && unzip -q -n TruFor_weights.zip"
+echo "TRUFOR_DEVICE=cuda:0 uvicorn api_server:app --host 127.0.0.1 --port 8001"
 echo
 exit 1

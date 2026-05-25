@@ -71,7 +71,7 @@ async def main() -> int:
     parser.add_argument("--qwen-url", default="http://127.0.0.1:8000")
     parser.add_argument("--trufor-url", default="http://127.0.0.1:8001")
     parser.add_argument("--rag-url", default="http://127.0.0.1:8002")
-    parser.add_argument("--max-new-tokens", type=int, default=128)
+    parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--limit", type=int, default=0, help="Max cases (0=all)")
     args = parser.parse_args()
 

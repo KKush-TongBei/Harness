@@ -30,7 +30,7 @@ class ToolRegistry:
         self,
         image_path: str,
         prompt: str,
-        max_new_tokens: int = 256,
+        max_new_tokens: int = 512,
     ) -> str:
         return await self._qwen.describe(image_path, prompt, max_new_tokens)
 

@@ -33,7 +33,7 @@ class QwenClient:
         self,
         image_path: str | Path,
         prompt: str,
-        max_new_tokens: int = 256,
+        max_new_tokens: int = 512,
     ) -> str:
         path = Path(image_path)
         if not path.is_file():

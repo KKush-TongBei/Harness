@@ -17,7 +17,7 @@ class ExecutionLoop:
         registry: ToolRegistry | None = None,
         context: ContextManager | None = None,
         storage: StateStorage | None = None,
-        max_new_tokens: int = 256,
+        max_new_tokens: int = 512,
     ):
         self.registry = registry or ToolRegistry()
         self.context = context or ContextManager()

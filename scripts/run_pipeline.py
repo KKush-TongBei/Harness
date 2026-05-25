@@ -22,7 +22,7 @@ async def main() -> int:
     parser.add_argument("--qwen-url", default="http://127.0.0.1:8000")
     parser.add_argument("--trufor-url", default="http://127.0.0.1:8001")
     parser.add_argument("--rag-url", default="http://127.0.0.1:8002")
-    parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--baseline", action="store_true", help="Run baseline mode only")
     args = parser.parse_args()
 
@@ -56,6 +56,10 @@ async def main() -> int:
         "evidence_chain": state.evidence_chain,
         "forgery_score": state.forgery_score,
         "anchors_count": len(state.anchors),
+        "fusion_parse_ok": not any(
+            "Fusion output JSON parse failed" in e for e in state.errors
+        ),
+        "raw_fusion_output": state.raw_fusion_output,
         "errors": state.errors,
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))
