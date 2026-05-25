@@ -55,6 +55,76 @@
       "expected_verdict": "authentic",
       "category": "社交媒体压缩图",
       "notes": "多次转发压缩痕迹"
+    },
+    {
+      "id": "real_press_briefing_01",
+      "image": "real_news/real_press_briefing_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "新闻发布会",
+      "notes": "媒体发布会现场真实摄影 [Unsplash]"
+    },
+    {
+      "id": "real_hospital_01",
+      "image": "real_news/real_hospital_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "医疗新闻",
+      "notes": "医院/医护场景真实摄影 [Unsplash / NCI]"
+    },
+    {
+      "id": "real_sports_stadium_01",
+      "image": "real_news/real_sports_stadium_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "体育新闻",
+      "notes": "田径/体育赛事现场真实摄影 [Unsplash]"
+    },
+    {
+      "id": "real_protest_news_01",
+      "image": "real_news/real_protest_news_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "社会新闻",
+      "notes": "街头集会/抗议报道常见场景 [Unsplash]"
+    },
+    {
+      "id": "real_tv_studio_01",
+      "image": "real_news/real_tv_studio_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "电视新闻",
+      "notes": "电视演播室/新闻工作场景 [Unsplash]"
+    },
+    {
+      "id": "real_crowd_event_01",
+      "image": "real_news/real_crowd_event_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "活动报道",
+      "notes": "大型活动现场真实摄影 [Unsplash]"
+    },
+    {
+      "id": "real_city_press_01",
+      "image": "real_news/real_city_press_01.jpg",
+      "expected_verdict": "authentic",
+      "category": "城市新闻",
+      "notes": "城市景观真实摄影，常见新闻配图背景 [Picsum Photos]"
+    },
+    {
+      "id": "fake_misleading_headline_01",
+      "image": "real_news/fake_misleading_headline_01.jpg",
+      "expected_verdict": "fake",
+      "category": "误导性信息",
+      "notes": "信息过载/屏幕场景，模拟谣言传播语境 [Unsplash]"
+    },
+    {
+      "id": "fake_gossipcop_variety_01",
+      "image": "real_news/fake_gossipcop_variety_01.jpg",
+      "expected_verdict": "fake",
+      "category": "GossipCop 假新闻",
+      "notes": "GossipCop 标注 fake 的 Variety 报道配图 [GossipCop / Variety]"
+    },
+    {
+      "id": "fake_social_share_01",
+      "image": "real_news/fake_social_share_01.jpg",
+      "expected_verdict": "fake",
+      "category": "社交媒体谣言",
+      "notes": "社交媒体/手机分享场景，常见谣言传播载体 [Unsplash]"
     }
   ]
 }
