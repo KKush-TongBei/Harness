@@ -30,7 +30,7 @@
       "source": "国务院新闻办公室",
       "date": "2025-01-10",
       "summary": "政府新闻发布会现场官方摄影，含 podium、发言人、媒体席等标准构图，经官方渠道发布。",
-      "keywords": ["发布会", "新闻", "政府", "发言人", "官方", "媒体", " podium", "记者"]
+      "keywords": ["发布会", "新闻", "政府", "发言人", "官方", "媒体", "podium", "记者", "briefing", "会议", "讲台", "microphone", "conference", "meeting"]
     },
     {
       "id": "disaster_relief_report",
@@ -46,7 +46,7 @@
       "source": "央视体育",
       "date": "2024-08-08",
       "summary": "奥运会等重大赛事转播画面截图，含运动员、场馆、计分板，JPEG 压缩与运动模糊为正常现象。",
-      "keywords": ["体育", "奥运", "比赛", "运动员", "场馆", "赛事", "转播", "截图"]
+      "keywords": ["体育", "奥运", "比赛", "运动员", "场馆", "赛事", "转播", "截图", "田径", "跑道", "体育场", "球场", "stadium", "track", "field", "running"]
     },
     {
       "id": "medical_public_health",
@@ -54,7 +54,7 @@
       "source": "国家卫健委",
       "date": "2024-03-01",
       "summary": "官方健康科普配图，含医护人员、医院、疫苗接种等场景，可能使用 stock 图库素材经官方审核发布。",
-      "keywords": ["医疗", "健康", "医院", "医生", "护士", "疫苗", "科普", "宣传"]
+      "keywords": ["医疗", "健康", "医院", "医生", "护士", "疫苗", "科普", "宣传", "医护", "病房", "诊所", "clinic", "patient", "medical"]
     },
     {
       "id": "social_media_compression",
@@ -62,7 +62,55 @@
       "source": "中国互联网联合辟谣平台",
       "date": "2023-11-01",
       "summary": "经微信、微博等平台多次转发压缩的图片，可能出现块效应、色带、锐化痕迹，不等同于恶意伪造。",
-      "keywords": ["压缩", "转发", "微信", "微博", "社交", "画质", "块效应", "再传播"]
+      "keywords": ["压缩", "转发", "微信", "微博", "社交", "画质", "块效应", "再传播", "模糊", "噪点", "jpeg", "马赛克", "pixelated", "block", "artifact"]
+    },
+    {
+      "id": "protest_rally_news",
+      "title": "街头集会与抗议活动合法新闻报道",
+      "source": "路透社/美联社",
+      "date": "2024-06-01",
+      "summary": "国际通讯社对街头集会、抗议示威的合法现场报道摄影，含人群、标语、横幅、举牌等场景，属常见新闻题材；人群密集与现场报道不等同于图像伪造，底层检测模型对复杂场景可能误报。",
+      "keywords": ["抗议", "集会", "游行", "示威", "人群", "标语", "横幅", "街头", "举牌", "protest", "rally", "demonstration", "march", "sign", "banner"]
+    },
+    {
+      "id": "crowd_public_event",
+      "title": "大型公共活动与人群聚集现场报道",
+      "source": "新华社",
+      "date": "2024-10-01",
+      "summary": "大型活动、节日庆典、演唱会、体育赛事等人群聚集现场的合法新闻摄影，观众密集、多角度拍摄为正常现象，不应因人群复杂就判为伪造。",
+      "keywords": ["人群", "观众", "活动", "聚会", "演唱会", "节日", "现场", "crowd", "event", "gathering", "audience", "festival", "concert"]
+    },
+    {
+      "id": "tv_studio_broadcast",
+      "title": "电视演播室与新闻制作现场",
+      "source": "央视新闻",
+      "date": "2024-05-15",
+      "summary": "电视新闻演播室、导播间、摄像机、灯光等设备的标准工作场景，属合法新闻制作环境摄影，专业布光与多机位构图不应视为篡改痕迹。",
+      "keywords": ["演播室", "导播", "摄像机", "主播", "电视", "新闻室", "studio", "broadcast", "television", "camera", "newsroom", "anchor"]
+    },
+    {
+      "id": "city_urban_press_photo",
+      "title": "城市景观与街景新闻配图",
+      "source": "新华社",
+      "date": "2024-04-01",
+      "summary": "城市天际线、建筑群、街景等常见新闻配图背景，属真实城市景观摄影，可能用于经济、社会、旅游等报道，画面本身为合法公开素材。",
+      "keywords": ["城市", "建筑", "天际线", "街景", "都市", "楼房", "city", "urban", "skyline", "building", "street", "downtown"]
+    },
+    {
+      "id": "rumor_social_share_warning",
+      "title": "辟谣平台警示：社交媒体谣言传播常见载体",
+      "source": "中国互联网联合辟谣平台",
+      "date": "2023-12-01",
+      "summary": "警示：仅展示手机界面、社交聊天截图、未标注权威来源的转发图，常为谣言传播载体；画面本身可能未篡改，但结合语境应倾向 suspicious 或 fake，不宜仅因图像真实就判 authentic。",
+      "keywords": ["手机", "屏幕", "分享", "转发", "谣言", "社交", "聊天", "phone", "mobile", "share", "screen", "message", "app"]
+    },
+    {
+      "id": "misleading_context_warning",
+      "title": "辟谣平台警示：误导性信息与未经核实报道",
+      "source": "中国互联网联合辟谣平台",
+      "date": "2023-12-01",
+      "summary": "警示：信息过载的屏幕截图、娱乐八卦、小报式标题配图等，常为误导性信息或未经核实报道的传播形式；图像可能为正常摄影，但语境具有误导性，应结合来源核查，倾向 suspicious 或 fake。",
+      "keywords": ["屏幕", "标题", "八卦", "谣言", "误导", "信息", "娱乐", "杂志", "headline", "gossip", "celebrity", "variety", "screen", "misleading"]
     }
   ]
 }
