@@ -13,6 +13,10 @@ def _max_score(anchors: list[dict]) -> float:
     return max(float(a.get("score", 0.0)) for a in anchors)
 
 
+def _has_anchor_id(anchors: list[dict], anchor_id: str) -> bool:
+    return any(str(a.get("id", "")) == anchor_id for a in anchors)
+
+
 def apply_fusion_policy(
     anchors: list[dict],
     forgery_score: float,
@@ -24,8 +28,10 @@ def apply_fusion_policy(
     support_max = _max_score(support)
     warning_max = _max_score(warning)
     has_strong_support = support_max >= 1.0
+    has_strong_support_strict = support_max > 1.0
 
     verdict = model_result.verdict
+    model_verdict = model_result.verdict
     reasoning = model_result.reasoning
     policy_notes: list[str] = []
 
@@ -33,26 +39,45 @@ def apply_fusion_policy(
         verdict = "suspicious"
         policy_notes.append("解析失败时不直接判 fake，降为 suspicious")
 
+    if (
+        _has_anchor_id(support, "social_media_compression")
+        and forgery_score < 0.9
+        and verdict in ("fake", "suspicious")
+    ):
+        verdict = "authentic"
+        policy_notes.append("社交媒体压缩合法锚点命中，强制 authentic")
+
     if has_strong_support and forgery_score < 0.85 and verdict == "fake":
         verdict = "suspicious"
         policy_notes.append("存在合法场景锚点且 TruFor<0.85，禁止 fake")
 
-    if has_strong_support and forgery_score < 0.85 and verdict == "suspicious" and forgery_score < 0.7:
+    if (
+        has_strong_support
+        and forgery_score < 0.85
+        and verdict == "suspicious"
+        and model_verdict == "suspicious"
+    ):
         verdict = "authentic"
-        policy_notes.append("合法锚点充分且 TruFor 较低，suspicious 升为 authentic")
+        policy_notes.append("合法锚点充分且 TruFor<0.85，suspicious 升为 authentic")
 
     if not support and not warning and forgery_score < 0.9 and verdict == "fake":
         verdict = "suspicious"
         policy_notes.append("无锚点且 TruFor<0.9，禁止 fake")
 
-    if (
-        warning_max >= 2.0
-        and support_max < 1.0
+    if not has_strong_support_strict and warning_max >= 3.0 and verdict in (
+        "authentic",
+        "suspicious",
+    ):
+        verdict = "fake"
+        policy_notes.append("强风险警示命中且无强合法锚点，升为 fake")
+
+    elif (
+        not has_strong_support_strict
+        and warning_max >= 2.0
         and verdict == "authentic"
-        and forgery_score >= 0.6
     ):
         verdict = "suspicious"
-        policy_notes.append("风险警示锚点命中且无合法锚点，authentic 降为 suspicious")
+        policy_notes.append("风险警示锚点命中且无强合法锚点，authentic 降为 suspicious")
 
     if policy_notes:
         note = " [融合策略] " + "; ".join(policy_notes)

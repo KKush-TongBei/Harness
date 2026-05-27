@@ -88,19 +88,32 @@ def select_anchors(
     min_support_score: float = MIN_SUPPORT_SCORE,
     min_warning_score: float = MIN_WARNING_SCORE,
 ) -> list[dict[str, Any]]:
-    """Prefer strong support anchors; use warning when no strong support match."""
+    """Prefer strong support anchors; prioritize warning when it beats weak support."""
     support = [a for a in scored if a.get("anchor_type", "support") != "warning"]
     warning = [a for a in scored if a.get("anchor_type") == "warning"]
 
     support.sort(key=lambda x: x["score"], reverse=True)
     warning.sort(key=lambda x: x["score"], reverse=True)
 
+    best_support = support[0]["score"] if support else 0.0
+    best_warning = warning[0]["score"] if warning else 0.0
+
+    if (
+        warning
+        and best_warning >= min_warning_score
+        and best_warning > best_support
+    ):
+        result = [warning[0]]
+        if support and len(result) < top_k:
+            result.append(support[0])
+        return result[:top_k]
+
     strong = [a for a in support if a["score"] > min_support_score]
     if strong:
         return strong[:top_k]
 
     result: list[dict[str, Any]] = []
-    if warning and warning[0]["score"] >= min_warning_score:
+    if warning and best_warning >= min_warning_score:
         result.append(warning[0])
     for anchor in support:
         if len(result) >= top_k:

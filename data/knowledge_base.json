@@ -115,7 +115,7 @@
       "source": "中国互联网联合辟谣平台",
       "date": "2023-12-01",
       "summary": "警示：仅展示手机界面、社交聊天截图、未标注权威来源的转发图，常为谣言传播载体；画面本身可能未篡改，但结合语境应倾向 suspicious 或 fake，不宜仅因图像真实就判 authentic。",
-      "keywords": ["手机界面", "聊天截图", "朋友圈截图", "微信群", "未核实来源", "谣言", "聊天", "phone", "mobile", "share", "message", "app", "screenshot"]
+      "keywords": ["手机界面", "聊天截图", "朋友圈截图", "微信群", "手持手机", "微信界面", "未核实来源", "谣言", "聊天", "phone", "mobile", "share", "message", "app", "screenshot"]
     },
     {
       "id": "misleading_context_warning",
@@ -124,7 +124,7 @@
       "source": "中国互联网联合辟谣平台",
       "date": "2023-12-01",
       "summary": "警示：信息过载的屏幕截图、娱乐八卦、小报式标题配图等，常为误导性信息或未经核实报道的传播形式；图像可能为正常摄影，但语境具有误导性，应结合来源核查，倾向 suspicious 或 fake。",
-      "keywords": ["八卦", "谣言", "误导", "娱乐", "杂志", "headline", "gossip", "celebrity", "variety", "misleading", "小报", "未经核实"]
+      "keywords": ["八卦", "谣言", "误导", "娱乐", "杂志", "显示器", "电脑屏幕", "信息过载", "headline", "gossip", "celebrity", "variety", "misleading", "小报", "未经核实"]
     }
   ]
 }

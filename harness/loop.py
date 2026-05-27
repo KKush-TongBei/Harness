@@ -6,6 +6,7 @@ from pathlib import Path
 from harness.context import ContextManager
 from harness.evaluation import parse_model_output
 from harness.fusion_policy import apply_fusion_policy
+from harness.rag_query import build_misinformation_probe, merge_anchors
 from harness.state import PipelineState, StateStorage
 from harness.tools.registry import ToolRegistry
 
@@ -45,6 +46,10 @@ class ExecutionLoop:
         )
 
         anchors = await self.registry.search_anchors(state.description)
+        probe = build_misinformation_probe(state.description)
+        if probe:
+            extra = await self.registry.search_anchors(probe, top_k=2)
+            anchors = merge_anchors(anchors, extra)
         state.anchors = [a.to_dict() for a in anchors]
 
         # Phase 3: Forgery detection (parallel with phase 2 in production; serial for clarity)

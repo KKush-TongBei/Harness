@@ -129,11 +129,18 @@ async def main() -> int:
     harness_ok = sum(1 for r in rows if r.get("harness_correct"))
     fp_fixed = sum(1 for r in rows if r.get("fp_corrected"))
 
+    authentic_rows = [r for r in rows if r.get("expected") == "authentic"]
+    misinfo_rows = [r for r in rows if r.get("expected") == "fake"]
+    authentic_ok = sum(1 for r in authentic_rows if r.get("harness_correct"))
+    misinfo_ok = sum(1 for r in misinfo_rows if r.get("harness_correct"))
+
     print()
     print(f"Summary written to: {summary_path}")
     print(f"Baseline correct: {baseline_ok}/{len(rows)}")
     print(f"harness correct: {harness_ok}/{len(rows)}")
     print(f"false positives corrected by harness: {fp_fixed}/{len(rows)}")
+    print(f"harness authentic subset: {authentic_ok}/{len(authentic_rows)}")
+    print(f"harness misinformation subset: {misinfo_ok}/{len(misinfo_rows)}")
     return 0
 
 
