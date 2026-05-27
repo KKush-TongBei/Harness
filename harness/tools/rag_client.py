@@ -14,27 +14,35 @@ class Anchor:
     summary: str
     keywords: list[str]
     score: float = 0.0
+    anchor_type: str = "support"
+    id: str = ""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Anchor":
         return cls(
+            id=str(data.get("id", "")),
             title=str(data.get("title", "")),
             source=str(data.get("source", "")),
             date=str(data.get("date", "")),
             summary=str(data.get("summary", "")),
             keywords=[str(k) for k in data.get("keywords", [])],
             score=float(data.get("score", 0.0)),
+            anchor_type=str(data.get("anchor_type", "support")),
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result: dict[str, Any] = {
             "title": self.title,
             "source": self.source,
             "date": self.date,
             "summary": self.summary,
             "keywords": self.keywords,
             "score": self.score,
+            "anchor_type": self.anchor_type,
         }
+        if self.id:
+            result["id"] = self.id
+        return result
 
 
 class RagClient:

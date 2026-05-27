@@ -2,6 +2,7 @@
   "anchors": [
     {
       "id": "military_exercise_2024",
+      "anchor_type": "support",
       "title": "某军区公开日合法军事装备展示",
       "source": "新华社",
       "date": "2024-09-15",
@@ -10,6 +11,7 @@
     },
     {
       "id": "naval_parade_2023",
+      "anchor_type": "support",
       "title": "海军成立纪念日舰艇开放活动",
       "source": "人民日报",
       "date": "2023-04-23",
@@ -18,6 +20,7 @@
     },
     {
       "id": "historical_war_photo",
+      "anchor_type": "support",
       "title": "历史战争纪实摄影档案",
       "source": "国家档案馆",
       "date": "1940-1945",
@@ -26,6 +29,7 @@
     },
     {
       "id": "press_conference_official",
+      "anchor_type": "support",
       "title": "政府部门新闻发布会官方图片",
       "source": "国务院新闻办公室",
       "date": "2025-01-10",
@@ -34,6 +38,7 @@
     },
     {
       "id": "disaster_relief_report",
+      "anchor_type": "support",
       "title": "自然灾害救援现场新闻报道",
       "source": "央视新闻",
       "date": "2024-07-20",
@@ -42,6 +47,7 @@
     },
     {
       "id": "sports_event_live",
+      "anchor_type": "support",
       "title": "国际体育赛事现场转播截图",
       "source": "央视体育",
       "date": "2024-08-08",
@@ -50,6 +56,7 @@
     },
     {
       "id": "medical_public_health",
+      "anchor_type": "support",
       "title": "公共卫生科普宣传图片",
       "source": "国家卫健委",
       "date": "2024-03-01",
@@ -58,14 +65,16 @@
     },
     {
       "id": "social_media_compression",
+      "anchor_type": "support",
       "title": "社交媒体图片压缩与再传播说明",
       "source": "中国互联网联合辟谣平台",
       "date": "2023-11-01",
       "summary": "经微信、微博等平台多次转发压缩的图片，可能出现块效应、色带、锐化痕迹，不等同于恶意伪造。",
-      "keywords": ["压缩", "转发", "微信", "微博", "社交", "画质", "块效应", "再传播", "模糊", "噪点", "jpeg", "马赛克", "pixelated", "block", "artifact"]
+      "keywords": ["压缩", "转发", "微信", "微博", "画质", "块效应", "再传播", "模糊", "噪点", "jpeg", "马赛克", "pixelated", "block", "artifact"]
     },
     {
       "id": "protest_rally_news",
+      "anchor_type": "support",
       "title": "街头集会与抗议活动合法新闻报道",
       "source": "路透社/美联社",
       "date": "2024-06-01",
@@ -74,6 +83,7 @@
     },
     {
       "id": "crowd_public_event",
+      "anchor_type": "support",
       "title": "大型公共活动与人群聚集现场报道",
       "source": "新华社",
       "date": "2024-10-01",
@@ -82,6 +92,7 @@
     },
     {
       "id": "tv_studio_broadcast",
+      "anchor_type": "support",
       "title": "电视演播室与新闻制作现场",
       "source": "央视新闻",
       "date": "2024-05-15",
@@ -90,6 +101,7 @@
     },
     {
       "id": "city_urban_press_photo",
+      "anchor_type": "support",
       "title": "城市景观与街景新闻配图",
       "source": "新华社",
       "date": "2024-04-01",
@@ -98,19 +110,21 @@
     },
     {
       "id": "rumor_social_share_warning",
+      "anchor_type": "warning",
       "title": "辟谣平台警示：社交媒体谣言传播常见载体",
       "source": "中国互联网联合辟谣平台",
       "date": "2023-12-01",
       "summary": "警示：仅展示手机界面、社交聊天截图、未标注权威来源的转发图，常为谣言传播载体；画面本身可能未篡改，但结合语境应倾向 suspicious 或 fake，不宜仅因图像真实就判 authentic。",
-      "keywords": ["手机", "屏幕", "分享", "转发", "谣言", "社交", "聊天", "phone", "mobile", "share", "screen", "message", "app"]
+      "keywords": ["手机界面", "聊天截图", "朋友圈截图", "微信群", "未核实来源", "谣言", "聊天", "phone", "mobile", "share", "message", "app", "screenshot"]
     },
     {
       "id": "misleading_context_warning",
+      "anchor_type": "warning",
       "title": "辟谣平台警示：误导性信息与未经核实报道",
       "source": "中国互联网联合辟谣平台",
       "date": "2023-12-01",
       "summary": "警示：信息过载的屏幕截图、娱乐八卦、小报式标题配图等，常为误导性信息或未经核实报道的传播形式；图像可能为正常摄影，但语境具有误导性，应结合来源核查，倾向 suspicious 或 fake。",
-      "keywords": ["屏幕", "标题", "八卦", "谣言", "误导", "信息", "娱乐", "杂志", "headline", "gossip", "celebrity", "variety", "screen", "misleading"]
+      "keywords": ["八卦", "谣言", "误导", "娱乐", "杂志", "headline", "gossip", "celebrity", "variety", "misleading", "小报", "未经核实"]
     }
   ]
 }

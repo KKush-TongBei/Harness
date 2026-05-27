@@ -19,6 +19,9 @@ _KB_PATH = Path(os.environ.get("RAG_KB_PATH", str(_DEFAULT_KB)))
 
 _kb_cache: list[dict[str, Any]] | None = None
 
+MIN_SUPPORT_SCORE = float(os.environ.get("RAG_MIN_SUPPORT_SCORE", "1.0"))
+MIN_WARNING_SCORE = float(os.environ.get("RAG_MIN_WARNING_SCORE", "2.0"))
+
 
 def _load_kb() -> list[dict[str, Any]]:
     global _kb_cache
@@ -27,7 +30,12 @@ def _load_kb() -> list[dict[str, Any]]:
     if not _KB_PATH.is_file():
         raise FileNotFoundError(f"Knowledge base not found: {_KB_PATH}")
     data = json.loads(_KB_PATH.read_text(encoding="utf-8"))
-    _kb_cache = list(data.get("anchors", []))
+    anchors = []
+    for anchor in data.get("anchors", []):
+        item = dict(anchor)
+        item.setdefault("anchor_type", "support")
+        anchors.append(item)
+    _kb_cache = anchors
     return _kb_cache
 
 
@@ -41,13 +49,11 @@ def _score_anchor(query: str, anchor: dict[str, Any]) -> float:
     query_lower = query.lower()
     score = 0.0
 
-    # Substring keyword match (works well for Chinese without word boundaries)
     keywords = [str(k).lower() for k in anchor.get("keywords", [])]
     for kw in keywords:
         if kw and kw in query_lower:
             score += 1.0
 
-    # Token overlap for English / mixed text
     q_tokens = _tokenize(query)
     anchor_text = " ".join(
         [
@@ -62,6 +68,46 @@ def _score_anchor(query: str, anchor: dict[str, Any]) -> float:
         score += len(overlap) * 0.5
 
     return score
+
+
+def _score_all(query: str, kb: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    scored: list[dict[str, Any]] = []
+    for anchor in kb:
+        s = _score_anchor(query, anchor)
+        if s > 0:
+            item = dict(anchor)
+            item["score"] = round(s, 4)
+            scored.append(item)
+    return scored
+
+
+def select_anchors(
+    scored: list[dict[str, Any]],
+    top_k: int = 3,
+    *,
+    min_support_score: float = MIN_SUPPORT_SCORE,
+    min_warning_score: float = MIN_WARNING_SCORE,
+) -> list[dict[str, Any]]:
+    """Prefer strong support anchors; use warning when no strong support match."""
+    support = [a for a in scored if a.get("anchor_type", "support") != "warning"]
+    warning = [a for a in scored if a.get("anchor_type") == "warning"]
+
+    support.sort(key=lambda x: x["score"], reverse=True)
+    warning.sort(key=lambda x: x["score"], reverse=True)
+
+    strong = [a for a in support if a["score"] > min_support_score]
+    if strong:
+        return strong[:top_k]
+
+    result: list[dict[str, Any]] = []
+    if warning and warning[0]["score"] >= min_warning_score:
+        result.append(warning[0])
+    for anchor in support:
+        if len(result) >= top_k:
+            break
+        if anchor not in result:
+            result.append(anchor)
+    return result[:top_k]
 
 
 class SearchRequest(BaseModel):
@@ -83,16 +129,8 @@ def health() -> dict[str, str]:
 @app.post("/search", response_model=SearchResponse)
 def search(req: SearchRequest) -> SearchResponse:
     kb = _load_kb()
-    scored = []
-    for anchor in kb:
-        s = _score_anchor(req.query, anchor)
-        if s > 0:
-            item = dict(anchor)
-            item["score"] = round(s, 4)
-            scored.append(item)
-
-    scored.sort(key=lambda x: x["score"], reverse=True)
-    top = scored[: req.top_k]
+    scored = _score_all(req.query, kb)
+    top = select_anchors(scored, req.top_k)
     return SearchResponse(anchors=top, query=req.query)
 
 

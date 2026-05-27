@@ -24,16 +24,21 @@ FUSION_PROMPT_TEMPLATE = """你是一名多模态虚假信息检测专家。请�
 【待检测内容描述】
 {description}
 
-【外部可信锚点】
-{anchors}
+【合法场景锚点】
+{support_anchors}
 
-【底层伪造检测分数】
-{score:.4f}（范围 0~1，越高表示底层模型认为越可疑；注意：新闻图片压缩、色彩增强、合法军事展示等可能导致高分误报）
+【谣言风险警示】
+{warning_anchors}
 
-【评分规则】
-- 若外部锚点表明内容为合法公开报道/官方活动，且描述与锚点一致，即使伪造分数较高也应倾向 authentic
-- 若描述与锚点矛盾，或无任何锚点且伪造分数极高，倾向 suspicious 或 fake
-- 必须给出可解释的证据链
+【底层伪造检测】
+分数 {score:.4f}，等级：{trufor_tier}
+
+【评分规则】（按优先级）
+1. 若有合法场景锚点且与描述一致 → 优先 authentic（即使 TruFor 分数偏高）
+2. 仅当无合法锚点、或有明确风险警示且描述高度吻合 → 才倾向 suspicious 或 fake
+3. TruFor 分数 alone 不足以判 fake；中等分数最高判 suspicious
+4. 仅有 TruFor 高分、无任何风险警示、且无合法锚点 → suspicious（非 fake）
+5. 必须给出可解释的证据链
 
 请输出 JSON 格式（不要包含 markdown 代码块）：
 {{
@@ -42,6 +47,26 @@ FUSION_PROMPT_TEMPLATE = """你是一名多模态虚假信息检测专家。请�
   "reasoning": "综合推理说明",
   "evidence_chain": ["证据1", "证据2"]
 }}"""
+
+
+def trufor_tier(score: float) -> str:
+    if score < 0.6:
+        return "低（误报概率较小）"
+    if score <= 0.85:
+        return "中（压缩/增强等可能导致误报）"
+    return "高（需结合锚点综合判断， alone 不足以判 fake）"
+
+
+def _format_anchor_lines(anchors: list[dict[str, Any]]) -> str:
+    if not anchors:
+        return "（无）"
+    lines = []
+    for i, a in enumerate(anchors, 1):
+        lines.append(
+            f"{i}. [{a.get('source', '未知来源')}] {a.get('title', '')} "
+            f"({a.get('date', '')}): {a.get('summary', '')}"
+        )
+    return "\n".join(lines)
 
 
 @dataclass(frozen=True)
@@ -58,19 +83,13 @@ class ContextManager:
         anchors: list[dict[str, Any]],
         score: float,
     ) -> str:
-        if anchors:
-            anchor_lines = []
-            for i, a in enumerate(anchors, 1):
-                anchor_lines.append(
-                    f"{i}. [{a.get('source', '未知来源')}] {a.get('title', '')} "
-                    f"({a.get('date', '')}): {a.get('summary', '')}"
-                )
-            anchors_text = "\n".join(anchor_lines)
-        else:
-            anchors_text = "（未检索到相关可信锚点）"
+        support = [a for a in anchors if a.get("anchor_type", "support") != "warning"]
+        warning = [a for a in anchors if a.get("anchor_type") == "warning"]
 
         return self.fusion_template.format(
             description=description,
-            anchors=anchors_text,
+            support_anchors=_format_anchor_lines(support),
+            warning_anchors=_format_anchor_lines(warning),
             score=score,
+            trufor_tier=trufor_tier(score),
         )

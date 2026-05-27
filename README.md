@@ -72,6 +72,15 @@ python scripts/run_ab_test.py
 
 结果输出至 `outputs/` 和 `outputs/ab_test/summary.csv`。
 
+### 离线自检
+
+```bash
+python scripts/validate_offline.py
+python scripts/test_fusion_policy.py
+```
+
+更新 `data/knowledge_base.json` 或 `mocks/rag_server.py` 后，需 **重启 Mock RAG 服务** 以加载新配置。
+
 ## 架构
 
 ```

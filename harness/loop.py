@@ -5,6 +5,7 @@ from pathlib import Path
 
 from harness.context import ContextManager
 from harness.evaluation import parse_model_output
+from harness.fusion_policy import apply_fusion_policy
 from harness.state import PipelineState, StateStorage
 from harness.tools.registry import ToolRegistry
 
@@ -62,12 +63,13 @@ class ExecutionLoop:
         )
         state.raw_fusion_output = raw
         result = parse_model_output(raw)
+        if not result.parse_ok:
+            state.errors.append("Fusion output JSON parse failed; used fallback heuristics")
+        result = apply_fusion_policy(state.anchors, state.forgery_score, result)
         state.verdict = result.verdict
         state.confidence = result.confidence
         state.reasoning = result.reasoning
         state.evidence_chain = result.evidence_chain
-        if not result.parse_ok:
-            state.errors.append("Fusion output JSON parse failed; used fallback heuristics")
 
         if save:
             self.storage.save(state)
