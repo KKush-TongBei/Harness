@@ -121,6 +121,69 @@ CASES: list[dict[str, str]] = [
     },
 ]
 
+REAL_NEWS_TEXT: dict[str, dict[str, str]] = {
+    "real_press_briefing_01": {
+        "fake_type": "matching",
+        "headline": "企业高管在媒体发布会上介绍新产品",
+        "body": "发布会现场记者举机拍摄，演讲者在台前介绍年度业务计划。",
+        "source": "财经通讯社",
+    },
+    "real_hospital_01": {
+        "fake_type": "matching",
+        "headline": "医院开展日常诊疗与护理工作",
+        "body": "纪实摄影记录医护人员在病房内照料患者，场景为常规医疗工作。",
+        "source": "健康时报",
+    },
+    "real_sports_stadium_01": {
+        "fake_type": "matching",
+        "headline": "田径选手在体育场参加赛事",
+        "body": "现场摄影捕捉运动员在跑道与看台前热身准备，为常规体育赛事报道。",
+        "source": "体育周报",
+    },
+    "real_protest_news_01": {
+        "fake_type": "matching",
+        "headline": "市民走上街头表达诉求，记者现场报道",
+        "body": "通讯社记者拍摄集会现场，人群举牌游行，为合法新闻报道场景。",
+        "source": "路透社",
+    },
+    "real_tv_studio_01": {
+        "fake_type": "matching",
+        "headline": "电视台新闻演播室工作场景",
+        "body": "导播间与演播室灯光、摄像机就位，工作人员准备晚间新闻播出。",
+        "source": "央视新闻",
+    },
+    "real_crowd_event_01": {
+        "fake_type": "matching",
+        "headline": "大型公共活动现场人群聚集",
+        "body": "记者拍摄节日活动现场，观众密集参与互动，为常规活动报道配图。",
+        "source": "新华社",
+    },
+    "real_city_press_01": {
+        "fake_type": "matching",
+        "headline": "城市天际线与街景成为经济报道配图",
+        "body": "摄影记者拍摄城市建筑群与街景，用于城市发展专题报道。",
+        "source": "新华社",
+    },
+    "fake_misleading_headline_01": {
+        "fake_type": "new_text_old_image",
+        "headline": "突发！本市今夜将发生特大事故，政府紧急封锁消息",
+        "body": "刚刚得到内部消息，现场已被封锁，速转！配图仅为信息过载的屏幕截图，与标题声称事件无关。",
+        "source": "未知微信群",
+    },
+    "fake_gossipcop_variety_01": {
+        "fake_type": "misleading_text",
+        "headline": "独家！某一线明星秘密结婚，内部人士曝光细节",
+        "body": "未经证实的娱乐八卦标题，配图仅为普通活动或杂志风格照片，无法支撑爆料内容。",
+        "source": "八卦自媒体",
+    },
+    "fake_social_share_01": {
+        "fake_type": "text_image_mismatch",
+        "headline": "暴雨导致某体育场严重内涝，观众被困",
+        "body": "朋友圈疯传：现场惨不忍睹！但配图实际为手机社交分享界面或无关场景，与暴雨灾害描述不符。",
+        "source": "微信朋友圈",
+    },
+}
+
 _OG_IMAGE_RES = (
     re.compile(
         r'<meta[^>]+property=["\'](?:og:image|twitter:image)["\'][^>]+content=["\']([^"\']+)["\']',
@@ -193,11 +256,16 @@ def _download_case(case: dict[str, str], retries: int = 3) -> Path:
 
 
 def _build_metadata_entry(case: dict[str, str]) -> dict[str, str]:
+    text = REAL_NEWS_TEXT.get(case["id"], {})
     return {
         "id": case["id"],
         "image": f"real_news/{case['filename']}",
         "expected_verdict": case["expected_verdict"],
         "category": case["category"],
+        "fake_type": text.get("fake_type", "matching"),
+        "headline": text.get("headline", ""),
+        "body": text.get("body", ""),
+        "source": text.get("source", case.get("source", "")),
         "notes": f"{case['notes']} [{case['source']}]",
     }
 

@@ -5,6 +5,10 @@
       "image": "military_demo_01.jpg",
       "expected_verdict": "authentic",
       "category": "合法军事装备展示",
+      "fake_type": "matching",
+      "headline": "某军区举行公开日，主战坦克与装甲部队向民众展示",
+      "body": "官方媒体报道称，此次开放日活动为年度例行公开军事展示，现场拍摄合法合规。",
+      "source": "新华社",
       "notes": "模拟公开日坦克展示场景，TruFor 可能因压缩误报"
     },
     {
@@ -12,6 +16,10 @@
       "image": "naval_parade_01.jpg",
       "expected_verdict": "authentic",
       "category": "海军舰艇开放日",
+      "fake_type": "matching",
+      "headline": "海军成立纪念日舰艇开放活动纪实",
+      "body": "多艘军舰靠港向公众开放参观，水兵列队欢迎市民登舰。",
+      "source": "人民日报",
       "notes": "军舰与军港场景"
     },
     {
@@ -19,6 +27,10 @@
       "image": "historical_war_01.jpg",
       "expected_verdict": "authentic",
       "category": "历史战争纪实摄影",
+      "fake_type": "matching",
+      "headline": "档案馆公布二战时期战场纪实照片",
+      "body": "国家档案馆发布一批历史战争纪实影像，胶片颗粒与扫描痕迹为原始档案特征。",
+      "source": "国家档案馆",
       "notes": "低分辨率胶片颗粒模拟"
     },
     {
@@ -26,6 +38,10 @@
       "image": "press_conference_01.jpg",
       "expected_verdict": "authentic",
       "category": "政府新闻发布会",
+      "fake_type": "matching",
+      "headline": "国务院新闻办公室举行例行新闻发布会",
+      "body": "发言人在 podium 前介绍政策，媒体席记者现场提问报道。",
+      "source": "国务院新闻办公室",
       "notes": "官方发布会标准构图"
     },
     {
@@ -33,6 +49,10 @@
       "image": "disaster_relief_01.jpg",
       "expected_verdict": "authentic",
       "category": "灾害救援新闻",
+      "fake_type": "matching",
+      "headline": "洪涝灾害救援现场：救援队伍转移受灾群众",
+      "body": "记者在现场拍摄救援进展，画面显示临时安置点与志愿者协助。",
+      "source": "央视新闻",
       "notes": "救援现场记者拍摄"
     },
     {
@@ -40,6 +60,10 @@
       "image": "sports_event_01.jpg",
       "expected_verdict": "authentic",
       "category": "体育赛事转播",
+      "fake_type": "matching",
+      "headline": "国际体育赛事现场转播画面",
+      "body": "电视转播截图显示运动员在场馆比赛，画面含运动模糊与压缩痕迹。",
+      "source": "央视体育",
       "notes": "JPEG 压缩与运动场景"
     },
     {
@@ -47,6 +71,10 @@
       "image": "medical_public_01.jpg",
       "expected_verdict": "authentic",
       "category": "公共卫生科普",
+      "fake_type": "matching",
+      "headline": "国家卫健委发布公共卫生科普宣传配图",
+      "body": "配图展示医护人员开展健康科普与疫苗接种宣传。",
+      "source": "国家卫健委",
       "notes": "官方健康宣传配图"
     },
     {
@@ -54,6 +82,10 @@
       "image": "social_compress_01.jpg",
       "expected_verdict": "authentic",
       "category": "社交媒体压缩图",
+      "fake_type": "matching",
+      "headline": "社交平台多次转发的活动照片",
+      "body": "网友转发分享的活动现场图，画质因多次压缩出现块效应，属正常传播现象。",
+      "source": "微博用户分享",
       "notes": "多次转发压缩痕迹"
     },
     {
@@ -61,6 +93,10 @@
       "image": "real_news/real_press_briefing_01.jpg",
       "expected_verdict": "authentic",
       "category": "新闻发布会",
+      "fake_type": "matching",
+      "headline": "企业高管在媒体发布会上介绍新产品",
+      "body": "发布会现场记者举机拍摄，演讲者在台前介绍年度业务计划。",
+      "source": "财经通讯社",
       "notes": "媒体发布会现场真实摄影 [Unsplash]"
     },
     {
@@ -68,6 +104,10 @@
       "image": "real_news/real_hospital_01.jpg",
       "expected_verdict": "authentic",
       "category": "医疗新闻",
+      "fake_type": "matching",
+      "headline": "医院开展日常诊疗与护理工作",
+      "body": "纪实摄影记录医护人员在病房内照料患者，场景为常规医疗工作。",
+      "source": "健康时报",
       "notes": "医院/医护场景真实摄影 [Unsplash / NCI]"
     },
     {
@@ -75,6 +115,10 @@
       "image": "real_news/real_sports_stadium_01.jpg",
       "expected_verdict": "authentic",
       "category": "体育新闻",
+      "fake_type": "matching",
+      "headline": "田径选手在体育场参加赛事",
+      "body": "现场摄影捕捉运动员在跑道与看台前热身准备，为常规体育赛事报道。",
+      "source": "体育周报",
       "notes": "田径/体育赛事现场真实摄影 [Unsplash]"
     },
     {
@@ -82,6 +126,10 @@
       "image": "real_news/real_protest_news_01.jpg",
       "expected_verdict": "authentic",
       "category": "社会新闻",
+      "fake_type": "matching",
+      "headline": "市民走上街头表达诉求，记者现场报道",
+      "body": "通讯社记者拍摄集会现场，人群举牌游行，为合法新闻报道场景。",
+      "source": "路透社",
       "notes": "街头集会/抗议报道常见场景 [Unsplash]"
     },
     {
@@ -89,6 +137,10 @@
       "image": "real_news/real_tv_studio_01.jpg",
       "expected_verdict": "authentic",
       "category": "电视新闻",
+      "fake_type": "matching",
+      "headline": "电视台新闻演播室工作场景",
+      "body": "导播间与演播室灯光、摄像机就位，工作人员准备晚间新闻播出。",
+      "source": "央视新闻",
       "notes": "电视演播室/新闻工作场景 [Unsplash]"
     },
     {
@@ -96,6 +148,10 @@
       "image": "real_news/real_crowd_event_01.jpg",
       "expected_verdict": "authentic",
       "category": "活动报道",
+      "fake_type": "matching",
+      "headline": "大型公共活动现场人群聚集",
+      "body": "记者拍摄节日活动现场，观众密集参与互动，为常规活动报道配图。",
+      "source": "新华社",
       "notes": "大型活动现场真实摄影 [Unsplash]"
     },
     {
@@ -103,6 +159,10 @@
       "image": "real_news/real_city_press_01.jpg",
       "expected_verdict": "authentic",
       "category": "城市新闻",
+      "fake_type": "matching",
+      "headline": "城市天际线与街景成为经济报道配图",
+      "body": "摄影记者拍摄城市建筑群与街景，用于城市发展专题报道。",
+      "source": "新华社",
       "notes": "城市景观真实摄影，常见新闻配图背景 [Picsum Photos]"
     },
     {
@@ -110,6 +170,10 @@
       "image": "real_news/fake_misleading_headline_01.jpg",
       "expected_verdict": "fake",
       "category": "误导性信息",
+      "fake_type": "new_text_old_image",
+      "headline": "突发！本市今夜将发生特大事故，政府紧急封锁消息",
+      "body": "刚刚得到内部消息，现场已被封锁，速转！配图仅为信息过载的屏幕截图，与标题声称事件无关。",
+      "source": "未知微信群",
       "notes": "信息过载/屏幕场景，模拟谣言传播语境 [Unsplash]"
     },
     {
@@ -117,6 +181,10 @@
       "image": "real_news/fake_gossipcop_variety_01.jpg",
       "expected_verdict": "fake",
       "category": "GossipCop 假新闻",
+      "fake_type": "misleading_text",
+      "headline": "独家！某一线明星秘密结婚，内部人士曝光细节",
+      "body": "未经证实的娱乐八卦标题，配图仅为普通活动或杂志风格照片，无法支撑爆料内容。",
+      "source": "八卦自媒体",
       "notes": "GossipCop 标注 fake 的 Variety 报道配图 [GossipCop / Variety]"
     },
     {
@@ -124,6 +192,10 @@
       "image": "real_news/fake_social_share_01.jpg",
       "expected_verdict": "fake",
       "category": "社交媒体谣言",
+      "fake_type": "text_image_mismatch",
+      "headline": "暴雨导致某体育场严重内涝，观众被困",
+      "body": "朋友圈疯传：现场惨不忍睹！但配图实际为手机社交分享界面或无关场景，与暴雨灾害描述不符。",
+      "source": "微信朋友圈",
       "notes": "社交媒体/手机分享场景，常见谣言传播载体 [Unsplash]"
     }
   ]

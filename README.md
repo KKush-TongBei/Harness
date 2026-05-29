@@ -1,6 +1,6 @@
 # Harness 多模态虚假信息检测 MVP
 
-基于 Harness 控制论框架的多模态虚假信息检测最小可用系统（PoC）。通过 HTTP 微服务集成：
+基于 Harness 控制论框架的 **图+文整体新闻真伪检测** 最小可用系统（PoC）。输入为新闻配图 + 标题/正文/来源，输出 verdict 与 issue_type。
 
 - **Qwen3-VL-2B**（:8000）— 视觉理解与融合判决
 - **TruFor**（:8001）— 图像伪造检测传感器
@@ -60,15 +60,33 @@ bash scripts/start_services.sh
 ```bash
 python scripts/generate_test_cases.py
 
-# 单张图 Harness 流程
-python scripts/run_pipeline.py --image data/test_cases/military_demo_01.jpg
+# 图+文新闻条目（从 metadata 加载）
+python scripts/run_pipeline.py --case-id military_demo_01
+
+# 手动指定标题/正文
+python scripts/run_pipeline.py \
+  --image data/test_cases/military_demo_01.jpg \
+  --headline "某军区举行公开日" \
+  --body "主战坦克向民众展示" \
+  --source "新华社"
 
 # Baseline 对照
-python scripts/run_pipeline.py --image data/test_cases/military_demo_01.jpg --baseline
+python scripts/run_pipeline.py --case-id military_demo_01 --baseline
 
-# A/B 消融实验
+# A/B 消融实验（18 条均含 headline/body/source）
 python scripts/run_ab_test.py
 ```
+
+### issue_type 说明
+
+| issue_type | 含义 |
+|------------|------|
+| `matching` | 图文一致、来源可信 |
+| `manipulated_image` | 图像被篡改 |
+| `text_image_mismatch` | 标题/正文与画面不符 |
+| `new_text_old_image` | 新文旧图（移花接木） |
+| `misleading_text` | 图真但标题/正文造谣或夸大 |
+| `fabricated_both` | 图文均伪造 |
 
 结果输出至 `outputs/` 和 `outputs/ab_test/summary.csv`。
 
@@ -77,6 +95,7 @@ python scripts/run_ab_test.py
 ```bash
 python scripts/validate_offline.py
 python scripts/test_fusion_policy.py
+python scripts/test_news_post.py
 ```
 
 更新 `data/knowledge_base.json` 或 `mocks/rag_server.py` 后，需 **重启 Mock RAG 服务** 以加载新配置。
@@ -84,8 +103,7 @@ python scripts/test_fusion_policy.py
 ## 架构
 
 ```
-输入图片 → [上下文管理] → Step1 Qwen 描述 → Step2 RAG 锚点
-         → Step3 TruFor 分数 → Step4 Qwen 融合 → 评估接口 → 报告
+输入（图+标题/正文/来源）→ Step1 图文理解 → Step2 RAG → Step3 TruFor → Step4 融合 → issue_type + verdict
 ```
 
 ## 目录结构

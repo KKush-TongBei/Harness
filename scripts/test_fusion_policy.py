@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 
 from harness.evaluation import EvaluationResult
 from harness.fusion_policy import apply_fusion_policy
+from harness.news_post import NewsPost
 from harness.rag_query import build_misinformation_probe
 import mocks.rag_server as rs
 from mocks.rag_server import _load_kb, _score_all, select_anchors
@@ -29,6 +30,7 @@ def test_support_blocks_fake_with_moderate_trufor() -> None:
         evidence_chain=[],
         parse_ok=True,
         raw_text="",
+        issue_type="unknown",
     )
     out = apply_fusion_policy(anchors, forgery_score=0.75, model_result=model)
     assert out.verdict == "suspicious", out.verdict
@@ -46,6 +48,7 @@ def test_suspicious_to_authentic_with_support() -> None:
         evidence_chain=[],
         parse_ok=True,
         raw_text="",
+        issue_type="unknown",
     )
     out = apply_fusion_policy(anchors, forgery_score=0.75, model_result=model)
     assert out.verdict == "authentic", out.verdict
@@ -64,6 +67,7 @@ def test_warning_escalates_authentic_to_fake() -> None:
         evidence_chain=[],
         parse_ok=True,
         raw_text="",
+        issue_type="unknown",
     )
     out = apply_fusion_policy(anchors, forgery_score=0.5, model_result=model)
     assert out.verdict == "fake", out.verdict
@@ -81,6 +85,7 @@ def test_warning_allows_fake_without_support() -> None:
         evidence_chain=[],
         parse_ok=True,
         raw_text="",
+        issue_type="unknown",
     )
     out = apply_fusion_policy(anchors, forgery_score=0.5, model_result=model)
     assert out.verdict == "fake", out.verdict
@@ -95,10 +100,26 @@ def test_no_anchors_blocks_fake_below_trufor_threshold() -> None:
         evidence_chain=[],
         parse_ok=True,
         raw_text="",
+        issue_type="unknown",
     )
     out = apply_fusion_policy([], forgery_score=0.85, model_result=model)
     assert out.verdict == "suspicious", out.verdict
     print("  Policy: no anchors + TruFor<0.9 blocks fake")
+
+
+def test_text_issue_type_downgrades_authentic() -> None:
+    model = EvaluationResult(
+        verdict="authentic",
+        confidence=0.8,
+        reasoning="text mismatch ignored",
+        evidence_chain=[],
+        parse_ok=True,
+        raw_text="",
+        issue_type="text_image_mismatch",
+    )
+    out = apply_fusion_policy([], forgery_score=0.4, model_result=model)
+    assert out.verdict == "suspicious", out.verdict
+    print("  Policy: text_image_mismatch authentic -> suspicious")
 
 
 def test_misinformation_probe() -> None:
@@ -156,6 +177,7 @@ def main() -> int:
     test_warning_escalates_authentic_to_fake()
     test_warning_allows_fake_without_support()
     test_no_anchors_blocks_fake_below_trufor_threshold()
+    test_text_issue_type_downgrades_authentic()
     test_misinformation_probe()
     test_rag_support_priority_no_warning_on_military()
     test_rag_sports_no_misleading_warning()

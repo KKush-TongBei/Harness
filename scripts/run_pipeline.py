@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run full Harness pipeline on a single image."""
+"""Run full Harness pipeline on a single news post (image + optional text)."""
 
 from __future__ import annotations
 
@@ -13,12 +13,20 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from harness.loop import ExecutionLoop
+from harness.news_post import NewsPost
 from harness.tools.registry import ToolRegistry
+
+DEFAULT_METADATA = ROOT / "data" / "test_cases" / "metadata.json"
 
 
 async def main() -> int:
-    parser = argparse.ArgumentParser(description="Harness MVP single-image pipeline")
-    parser.add_argument("--image", required=True, help="Path to input image")
+    parser = argparse.ArgumentParser(description="Harness MVP news post pipeline")
+    parser.add_argument("--image", help="Path to input image")
+    parser.add_argument("--case-id", help="Load image+text from metadata.json by case id")
+    parser.add_argument("--cases", default=str(DEFAULT_METADATA), help="metadata.json path")
+    parser.add_argument("--headline", default="", help="News headline")
+    parser.add_argument("--body", default="", help="News body text")
+    parser.add_argument("--source", default="", help="News source")
     parser.add_argument("--qwen-url", default="http://127.0.0.1:8000")
     parser.add_argument("--trufor-url", default="http://127.0.0.1:8001")
     parser.add_argument("--rag-url", default="http://127.0.0.1:8002")
@@ -26,7 +34,21 @@ async def main() -> int:
     parser.add_argument("--baseline", action="store_true", help="Run baseline mode only")
     args = parser.parse_args()
 
-    image = Path(args.image).resolve()
+    if args.case_id:
+        news = NewsPost.from_metadata(Path(args.cases), args.case_id)
+        image = Path(news.image_path)
+    elif args.image:
+        image = Path(args.image).resolve()
+        news = NewsPost(
+            image_path=str(image),
+            headline=args.headline,
+            body=args.body,
+            source=args.source,
+        )
+    else:
+        print("Error: provide --image or --case-id", file=sys.stderr)
+        return 1
+
     if not image.is_file():
         print(f"Error: image not found: {image}", file=sys.stderr)
         return 1
@@ -40,9 +62,9 @@ async def main() -> int:
 
     try:
         if args.baseline:
-            state = await loop.run_baseline(str(image))
+            state = await loop.run_baseline(str(image), news=news if news.has_text() else None)
         else:
-            state = await loop.run_harness(str(image))
+            state = await loop.run_harness(str(image), news=news if news.has_text() else None)
     except RuntimeError as e:
         print(f"Pipeline failed: {e}", file=sys.stderr)
         return 1
@@ -51,11 +73,16 @@ async def main() -> int:
         "run_id": state.run_id,
         "mode": state.mode,
         "verdict": state.verdict,
+        "issue_type": state.issue_type,
         "confidence": state.confidence,
         "reasoning": state.reasoning,
         "evidence_chain": state.evidence_chain,
         "forgery_score": state.forgery_score,
         "anchors_count": len(state.anchors),
+        "headline": state.headline,
+        "body": state.body,
+        "source": state.source,
+        "fake_type": state.fake_type,
         "fusion_parse_ok": not any(
             "Fusion output JSON parse failed" in e for e in state.errors
         ),

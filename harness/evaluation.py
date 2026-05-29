@@ -7,6 +7,15 @@ from typing import Any
 
 
 VALID_VERDICTS = {"authentic", "suspicious", "fake"}
+VALID_ISSUE_TYPES = {
+    "matching",
+    "manipulated_image",
+    "text_image_mismatch",
+    "new_text_old_image",
+    "misleading_text",
+    "fabricated_both",
+    "unknown",
+}
 
 
 @dataclass
@@ -17,6 +26,7 @@ class EvaluationResult:
     evidence_chain: list[str]
     parse_ok: bool
     raw_text: str
+    issue_type: str = "unknown"
 
 
 def _try_parse_json_dict(raw: str) -> dict[str, Any] | None:
@@ -36,14 +46,12 @@ def _extract_json_block(text: str) -> dict[str, Any] | None:
     if obj is not None:
         return obj
 
-    # Closed markdown code fence
     fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
     if fence:
         obj = _try_parse_json_dict(fence.group(1))
         if obj is not None:
             return obj
 
-    # Unclosed fence (truncated model output)
     fence_open = re.search(r"```(?:json)?\s*(\{.*)", text, re.DOTALL)
     if fence_open:
         candidate = re.sub(r"\s*```\s*$", "", fence_open.group(1).strip())
@@ -51,7 +59,6 @@ def _extract_json_block(text: str) -> dict[str, Any] | None:
         if obj is not None:
             return obj
 
-    # First {...} block
     brace = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text, re.DOTALL)
     if brace:
         obj = _try_parse_json_dict(brace.group(0))
@@ -62,12 +69,15 @@ def _extract_json_block(text: str) -> dict[str, Any] | None:
 
 
 def _extract_partial_json_fields(text: str) -> dict[str, Any] | None:
-    """Recover verdict/confidence/reasoning from truncated JSON text."""
     verdict_m = re.search(r'"verdict"\s*:\s*"(\w+)"', text, re.IGNORECASE)
     if not verdict_m:
         return None
 
     obj: dict[str, Any] = {"verdict": verdict_m.group(1)}
+
+    issue_m = re.search(r'"issue_type"\s*:\s*"(\w+)"', text, re.IGNORECASE)
+    if issue_m:
+        obj["issue_type"] = issue_m.group(1)
 
     conf_m = re.search(r'"confidence"\s*:\s*([\d.]+)', text)
     if conf_m:
@@ -76,7 +86,7 @@ def _extract_partial_json_fields(text: str) -> dict[str, Any] | None:
     reason_m = re.search(r'"reasoning"\s*:\s*"(.*)', text, re.DOTALL)
     if reason_m:
         raw = reason_m.group(1)
-        end = re.search(r'(?<!\\)"\s*,\s*"evidence_chain"', raw)
+        end = re.search(r'(?<!\\)"\s*,\s*"(?:evidence_chain|issue_type)"', raw)
         obj["reasoning"] = raw[: end.start()] if end else raw.rstrip('", \n\r\t')
 
     chain_m = re.search(r'"evidence_chain"\s*:\s*\[(.*?)(?:\]|$)', text, re.DOTALL)
@@ -88,6 +98,30 @@ def _extract_partial_json_fields(text: str) -> dict[str, Any] | None:
     return obj
 
 
+def _normalize_issue_type(raw: str | None) -> str:
+    if not raw:
+        return "unknown"
+    v = raw.strip().lower()
+    if v in VALID_ISSUE_TYPES:
+        return v
+    mapping = {
+        "一致": "matching",
+        "匹配": "matching",
+        "篡改": "manipulated_image",
+        "图文不符": "text_image_mismatch",
+        "不匹配": "text_image_mismatch",
+        "新文旧图": "new_text_old_image",
+        "移花接木": "new_text_old_image",
+        "误导": "misleading_text",
+        "谣言": "misleading_text",
+        "均假": "fabricated_both",
+    }
+    for key, val in mapping.items():
+        if key in v:
+            return val
+    return "unknown"
+
+
 def _result_from_obj(obj: dict[str, Any], text: str, *, parse_ok: bool) -> EvaluationResult:
     verdict = _normalize_verdict(str(obj.get("verdict", "")))
     confidence = _clamp_confidence(obj.get("confidence", 0.5))
@@ -97,6 +131,7 @@ def _result_from_obj(obj: dict[str, Any], text: str, *, parse_ok: bool) -> Evalu
         evidence_chain = [str(x) for x in chain_raw]
     else:
         evidence_chain = [str(chain_raw)] if chain_raw else []
+    issue_type = _normalize_issue_type(str(obj.get("issue_type", "")))
     return EvaluationResult(
         verdict=verdict,
         confidence=confidence,
@@ -104,6 +139,7 @@ def _result_from_obj(obj: dict[str, Any], text: str, *, parse_ok: bool) -> Evalu
         evidence_chain=evidence_chain,
         parse_ok=parse_ok,
         raw_text=text,
+        issue_type=issue_type,
     )
 
 
@@ -140,7 +176,6 @@ def _clamp_confidence(value: Any) -> float:
 
 
 def _fallback_verdict(text: str) -> str:
-    """Keyword heuristics when structured JSON fields are unavailable."""
     lower = text.lower()
     fake_markers = (
         '"verdict": "fake"',
@@ -169,7 +204,6 @@ def _fallback_verdict(text: str) -> str:
 
 
 def parse_model_output(text: str) -> EvaluationResult:
-    """Parse Qwen JSON verdict output with graceful fallback."""
     obj = _extract_json_block(text)
     if obj is not None:
         return _result_from_obj(obj, text, parse_ok=True)
@@ -186,6 +220,7 @@ def parse_model_output(text: str) -> EvaluationResult:
         evidence_chain=[],
         parse_ok=False,
         raw_text=text,
+        issue_type="unknown",
     )
 
 
@@ -199,3 +234,18 @@ def verdict_matches_expected(verdict: str | None, expected: str) -> bool:
     if e in ("fake", "suspicious"):
         return v in ("fake", "suspicious")
     return v == e
+
+
+def issue_type_matches_expected(issue_type: str | None, expected_fake_type: str) -> bool:
+    if not expected_fake_type or expected_fake_type == "matching":
+        return issue_type in ("matching", "unknown", None)
+    if issue_type is None:
+        return False
+    if issue_type == expected_fake_type:
+        return True
+    related = {
+        "text_image_mismatch": {"misleading_text", "new_text_old_image"},
+        "new_text_old_image": {"misleading_text", "text_image_mismatch"},
+        "misleading_text": {"text_image_mismatch", "new_text_old_image"},
+    }
+    return issue_type in related.get(expected_fake_type, set())

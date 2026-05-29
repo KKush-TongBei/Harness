@@ -13,8 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from harness.evaluation import verdict_matches_expected
+from harness.evaluation import issue_type_matches_expected, verdict_matches_expected
 from harness.loop import ExecutionLoop
+from harness.news_post import NewsPost
 from harness.state import StateStorage
 from harness.tools.registry import ToolRegistry
 
@@ -25,19 +26,27 @@ async def run_case(
     cases_dir: Path,
 ) -> dict:
     case_id = case["id"]
-    image_path = cases_dir / case["image"]
+    news = NewsPost.from_case_dict(case, cases_dir)
     expected = case.get("expected_verdict", "authentic")
+    expected_fake_type = case.get("fake_type", "matching")
 
-    baseline_state = await loop.run_baseline(str(image_path), save=False)
+    baseline_state = await loop.run_baseline(
+        news.image_path, news=news if news.has_text() else None, save=False
+    )
     baseline_state.run_id = f"baseline_{case_id}"
     StateStorage(ROOT / "outputs" / "ab_test").save(baseline_state)
 
-    harness_state = await loop.run_harness(str(image_path), save=False)
+    harness_state = await loop.run_harness(
+        news.image_path, news=news if news.has_text() else None, save=False
+    )
     harness_state.run_id = f"harness_{case_id}"
     StateStorage(ROOT / "outputs" / "ab_test").save(harness_state)
 
     baseline_correct = verdict_matches_expected(baseline_state.verdict, expected)
     harness_correct = verdict_matches_expected(harness_state.verdict, expected)
+    issue_type_match = issue_type_matches_expected(
+        harness_state.issue_type, expected_fake_type
+    )
     fp_corrected = (
         not baseline_correct
         and baseline_state.verdict in ("fake", "suspicious")
@@ -49,14 +58,18 @@ async def run_case(
         "case_id": case_id,
         "category": case.get("category", ""),
         "expected": expected,
+        "fake_type": expected_fake_type,
         "baseline_verdict": baseline_state.verdict,
+        "baseline_issue_type": baseline_state.issue_type,
         "baseline_confidence": baseline_state.confidence,
         "harness_verdict": harness_state.verdict,
+        "harness_issue_type": harness_state.issue_type,
         "harness_confidence": harness_state.confidence,
         "trufor_score": harness_state.forgery_score,
         "anchors_count": len(harness_state.anchors),
         "baseline_correct": baseline_correct,
         "harness_correct": harness_correct,
+        "issue_type_match": issue_type_match,
         "fp_corrected": fp_corrected,
     }
 
@@ -112,7 +125,8 @@ async def main() -> int:
             rows.append(row)
             print(
                 f"  baseline={row['baseline_verdict']} harness={row['harness_verdict']} "
-                f"expected={row['expected']} fp_corrected={row['fp_corrected']}"
+                f"expected={row['expected']} issue_type={row['harness_issue_type']} "
+                f"fp_corrected={row['fp_corrected']}"
             )
         except Exception as e:
             print(f"  FAILED: {e}", file=sys.stderr)
@@ -128,11 +142,11 @@ async def main() -> int:
     baseline_ok = sum(1 for r in rows if r.get("baseline_correct"))
     harness_ok = sum(1 for r in rows if r.get("harness_correct"))
     fp_fixed = sum(1 for r in rows if r.get("fp_corrected"))
-
     authentic_rows = [r for r in rows if r.get("expected") == "authentic"]
     misinfo_rows = [r for r in rows if r.get("expected") == "fake"]
     authentic_ok = sum(1 for r in authentic_rows if r.get("harness_correct"))
     misinfo_ok = sum(1 for r in misinfo_rows if r.get("harness_correct"))
+    issue_ok = sum(1 for r in rows if r.get("issue_type_match"))
 
     print()
     print(f"Summary written to: {summary_path}")
@@ -141,6 +155,7 @@ async def main() -> int:
     print(f"false positives corrected by harness: {fp_fixed}/{len(rows)}")
     print(f"harness authentic subset: {authentic_ok}/{len(authentic_rows)}")
     print(f"harness misinformation subset: {misinfo_ok}/{len(misinfo_rows)}")
+    print(f"harness issue_type match: {issue_ok}/{len(rows)}")
     return 0
 
 

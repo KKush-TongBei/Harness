@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 from harness.context import ContextManager, trufor_tier
 from harness.evaluation import parse_model_output, verdict_matches_expected
+from harness.news_post import NewsPost
 from harness.tools.rag_client import RagClient
 
 
@@ -51,6 +52,12 @@ async def test_rag_client() -> None:
 
 def test_context_fusion_prompt() -> None:
     ctx = ContextManager()
+    news = NewsPost(
+        image_path="data/test_cases/military_demo_01.jpg",
+        headline="某军区举行公开日",
+        body="主战坦克向民众展示",
+        source="新华社",
+    )
     prompt = ctx.build_fusion_prompt(
         description="几名士兵在展示坦克装备",
         anchors=[
@@ -63,20 +70,38 @@ def test_context_fusion_prompt() -> None:
             }
         ],
         score=0.75,
+        news=news,
     )
     assert trufor_tier(0.75) in prompt
     assert "合法场景锚点" in prompt
-    assert "谣言风险警示" in prompt
-    assert "军演" in prompt
-    print("  Context fusion prompt: OK")
+    assert "待检测新闻文本" in prompt
+    assert "某军区举行公开日" in prompt
+    print("  Context fusion prompt with news: OK")
 
 
 def test_evaluation_parser() -> None:
-    raw = '{"verdict": "authentic", "confidence": 0.9, "reasoning": "ok", "evidence_chain": ["a"]}'
+    raw = (
+        '{"verdict": "fake", "issue_type": "text_image_mismatch", '
+        '"confidence": 0.9, "reasoning": "ok", "evidence_chain": ["a"]}'
+    )
     r = parse_model_output(raw)
-    assert r.parse_ok and r.verdict == "authentic"
+    assert r.parse_ok and r.verdict == "fake"
+    assert r.issue_type == "text_image_mismatch"
     assert verdict_matches_expected("authentic", "authentic")
-    print("  Evaluation parser: OK")
+    print("  Evaluation parser with issue_type: OK")
+
+
+def test_news_post_suite() -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "test_news_post", ROOT / "scripts" / "test_news_post.py"
+    )
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.main() == 0
+    print("  NewsPost suite: OK")
 
 
 def test_fusion_policy_suite() -> None:
@@ -96,6 +121,7 @@ async def main() -> int:
     print("=== Harness Offline Validation ===")
     test_context_fusion_prompt()
     test_evaluation_parser()
+    test_news_post_suite()
     test_fusion_policy_suite()
     try:
         await test_rag_client()

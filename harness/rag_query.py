@@ -17,6 +17,10 @@ RISK_TERMS: tuple[str, ...] = (
     "电脑屏幕",
     "明星",
     "小报",
+    "移花接木",
+    "旧图",
+    "图文不符",
+    "不匹配",
     "phone",
     "mobile",
     "screen",
@@ -27,17 +31,19 @@ RISK_TERMS: tuple[str, ...] = (
     "misleading",
     "app",
     "message",
+    "variety",
 )
 
 
-def build_misinformation_probe(description: str) -> str | None:
-    """Build supplemental RAG query when description mentions rumor-carrier cues."""
-    if not description.strip():
+def build_misinformation_probe(description: str, news_text: str = "") -> str | None:
+    """Build supplemental RAG query when description or news text mentions rumor cues."""
+    combined = f"{description}\n{news_text}".strip()
+    if not combined:
         return None
-    found = [term for term in RISK_TERMS if term.lower() in description.lower()]
+    found = [term for term in RISK_TERMS if term.lower() in combined.lower()]
     if not found:
         return None
-    return " ".join(found) + " 谣言传播 未经核实 误导性信息"
+    return " ".join(found) + " 谣言传播 未经核实 误导性信息 图文不符 新文旧图"
 
 
 def merge_anchors(primary: list[Anchor], extra: list[Anchor]) -> list[Anchor]:

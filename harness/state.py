@@ -19,10 +19,15 @@ class PipelineState:
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
+    headline: str = ""
+    body: str = ""
+    source: str = ""
+    fake_type: str = "matching"
     description: str | None = None
     anchors: list[dict[str, Any]] = field(default_factory=list)
     forgery_score: float | None = None
     verdict: str | None = None
+    issue_type: str | None = None
     confidence: float | None = None
     reasoning: str | None = None
     evidence_chain: list[str] = field(default_factory=list)
@@ -59,7 +64,12 @@ class StateStorage:
             "run_id": state.run_id,
             "mode": state.mode,
             "input_image": state.input_image,
+            "headline": state.headline,
+            "body": state.body,
+            "source": state.source,
+            "fake_type": state.fake_type,
             "verdict": state.verdict,
+            "issue_type": state.issue_type,
             "confidence": state.confidence,
             "reasoning": state.reasoning,
             "evidence_chain": state.evidence_chain,
