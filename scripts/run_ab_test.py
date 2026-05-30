@@ -18,15 +18,19 @@ from harness.loop import ExecutionLoop
 from harness.news_post import NewsPost
 from harness.state import StateStorage
 from harness.tools.registry import ToolRegistry
+from harness.weibo_loader import DEFAULT_SUBSET_PATH
+
+DEFAULT_CASES = ROOT / "data" / "test_cases" / "metadata.json"
 
 
 async def run_case(
     loop: ExecutionLoop,
     case: dict,
     cases_dir: Path,
+    metadata_path: Path,
 ) -> dict:
     case_id = case["id"]
-    news = NewsPost.from_case_dict(case, cases_dir)
+    news = NewsPost.from_case_dict(case, cases_dir, metadata_path=metadata_path)
     expected = case.get("expected_verdict", "authentic")
     expected_fake_type = case.get("fake_type", "matching")
 
@@ -78,8 +82,13 @@ async def main() -> int:
     parser = argparse.ArgumentParser(description="Harness A/B ablation test")
     parser.add_argument(
         "--cases",
-        default=str(ROOT / "data" / "test_cases" / "metadata.json"),
+        default=str(DEFAULT_CASES),
         help="Path to test cases metadata.json",
+    )
+    parser.add_argument(
+        "--weibo",
+        action="store_true",
+        help="Use data/weibo_test_subset.json (run scripts/build_weibo_subset.py first)",
     )
     parser.add_argument("--qwen-url", default="http://127.0.0.1:8000")
     parser.add_argument("--trufor-url", default="http://127.0.0.1:8001")
@@ -88,10 +97,13 @@ async def main() -> int:
     parser.add_argument("--limit", type=int, default=0, help="Max cases (0=all)")
     args = parser.parse_args()
 
-    cases_path = Path(args.cases)
+    cases_path = Path(DEFAULT_SUBSET_PATH if args.weibo else args.cases)
     if not cases_path.is_file():
         print(f"Error: cases file not found: {cases_path}", file=sys.stderr)
-        print("Run: python scripts/generate_test_cases.py", file=sys.stderr)
+        if args.weibo:
+            print("Run: python scripts/build_weibo_subset.py", file=sys.stderr)
+        else:
+            print("Run: python scripts/generate_test_cases.py", file=sys.stderr)
         return 1
 
     cases_dir = cases_path.parent
@@ -121,7 +133,7 @@ async def main() -> int:
     for case in cases:
         print(f"Running case: {case['id']} ...")
         try:
-            row = await run_case(loop, case, cases_dir)
+            row = await run_case(loop, case, cases_dir, cases_path)
             rows.append(row)
             print(
                 f"  baseline={row['baseline_verdict']} harness={row['harness_verdict']} "

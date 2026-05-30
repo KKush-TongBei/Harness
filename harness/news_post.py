@@ -28,9 +28,20 @@ class NewsPost:
         return "\n".join(parts)
 
     @classmethod
-    def from_case_dict(cls, case: dict[str, Any], cases_dir: Path) -> "NewsPost":
+    def from_case_dict(
+        cls,
+        case: dict[str, Any],
+        cases_dir: Path,
+        *,
+        metadata_path: Path | None = None,
+    ) -> "NewsPost":
         image = case.get("image", "")
-        image_path = str((cases_dir / image).resolve())
+        if metadata_path is not None and case.get("dataset") == "weibo":
+            from harness.weibo_loader import resolve_case_image
+
+            image_path = str(resolve_case_image(case, metadata_path))
+        else:
+            image_path = str((cases_dir / image).resolve())
         return cls(
             image_path=image_path,
             headline=str(case.get("headline", "")),
@@ -44,5 +55,7 @@ class NewsPost:
         data = json.loads(metadata_path.read_text(encoding="utf-8"))
         for case in data.get("cases", []):
             if case.get("id") == case_id:
-                return cls.from_case_dict(case, metadata_path.parent)
+                return cls.from_case_dict(
+                    case, metadata_path.parent, metadata_path=metadata_path
+                )
         raise KeyError(f"Case not found in metadata: {case_id}")

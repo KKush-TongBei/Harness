@@ -75,6 +75,12 @@ python scripts/run_pipeline.py --case-id military_demo_01 --baseline
 
 # A/B 消融实验（18 条均含 headline/body/source）
 python scripts/run_ab_test.py
+
+# 微博数据集子集（需本地 weibo_dataset/，默认 test 集各 10 条）
+python scripts/build_weibo_subset.py
+python scripts/run_pipeline.py --weibo --case-id weibo_rumor_3773960661907052
+python scripts/run_ab_test.py --weibo
+python scripts/run_ab_test.py --weibo --limit 4
 ```
 
 ### issue_type 说明
@@ -96,6 +102,7 @@ python scripts/run_ab_test.py
 python scripts/validate_offline.py
 python scripts/test_fusion_policy.py
 python scripts/test_news_post.py
+python scripts/test_weibo_loader.py
 ```
 
 更新 `data/knowledge_base.json` 或 `mocks/rag_server.py` 后，需 **重启 Mock RAG 服务** 以加载新配置。
@@ -111,8 +118,9 @@ python scripts/test_news_post.py
 ```
 harness/          # 五组件：context, tools, state, loop, evaluation
 mocks/            # Mock RAG FastAPI
-data/             # 知识库 + 测试用例
+data/             # 知识库 + 测试用例 + weibo_test_subset.json
 scripts/          # 启动、流水线、消融脚本
+weibo_dataset/    # 本地微博谣言数据集（gitignore，需自行放置）
 outputs/          # 运行结果（gitignore）
 ```
 

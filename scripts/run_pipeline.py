@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 from harness.loop import ExecutionLoop
 from harness.news_post import NewsPost
 from harness.tools.registry import ToolRegistry
+from harness.weibo_loader import DEFAULT_SUBSET_PATH
 
 DEFAULT_METADATA = ROOT / "data" / "test_cases" / "metadata.json"
 
@@ -24,6 +25,11 @@ async def main() -> int:
     parser.add_argument("--image", help="Path to input image")
     parser.add_argument("--case-id", help="Load image+text from metadata.json by case id")
     parser.add_argument("--cases", default=str(DEFAULT_METADATA), help="metadata.json path")
+    parser.add_argument(
+        "--weibo",
+        action="store_true",
+        help="Use data/weibo_test_subset.json (run scripts/build_weibo_subset.py first)",
+    )
     parser.add_argument("--headline", default="", help="News headline")
     parser.add_argument("--body", default="", help="News body text")
     parser.add_argument("--source", default="", help="News source")
@@ -35,7 +41,13 @@ async def main() -> int:
     args = parser.parse_args()
 
     if args.case_id:
-        news = NewsPost.from_metadata(Path(args.cases), args.case_id)
+        cases_path = Path(DEFAULT_SUBSET_PATH if args.weibo else args.cases)
+        if not cases_path.is_file():
+            print(f"Error: cases file not found: {cases_path}", file=sys.stderr)
+            if args.weibo:
+                print("Run: python scripts/build_weibo_subset.py", file=sys.stderr)
+            return 1
+        news = NewsPost.from_metadata(cases_path, args.case_id)
         image = Path(news.image_path)
     elif args.image:
         image = Path(args.image).resolve()

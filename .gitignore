@@ -15,3 +15,6 @@ outputs/
 *.pth
 *.pth.tar
 weights/
+
+# Local datasets (large, do not commit)
+weibo_dataset/
