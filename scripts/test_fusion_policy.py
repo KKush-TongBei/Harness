@@ -12,7 +12,10 @@ sys.path.insert(0, str(ROOT))
 from harness.evaluation import EvaluationResult
 from harness.fusion_policy import apply_fusion_policy
 from harness.news_post import NewsPost
-from harness.rag_query import build_misinformation_probe
+from harness.rag_query import (
+    build_misinformation_probe,
+    build_official_support_probe,
+)
 import mocks.rag_server as rs
 from mocks.rag_server import _load_kb, _score_all, select_anchors
 
@@ -170,6 +173,68 @@ def test_rag_warning_only_when_support_weak() -> None:
     print("  RAG: strong warning query includes warning anchor")
 
 
+def test_weibo_psa_probe_skips_warning() -> None:
+    text = "【急转！公安部刑侦局提醒：这8种情形肯定是诈骗】扩散！报警！"
+    assert build_misinformation_probe(text) is None
+    official = build_official_support_probe(text)
+    assert official is not None
+    assert "公安部" in official
+    print("  RAG query: official PSA skips warning probe")
+
+
+def test_weibo_support_retrieval() -> None:
+    kb = _load_kb()
+    q = "据中新网 印度猴子偷开巴士酿车祸 几乎车毁猴亡 微博转载"
+    scored = _score_all(q, kb)
+    top = select_anchors(scored, top_k=3)
+    ids = [a["id"] for a in top]
+    assert "weibo_media_repost" in ids
+    print("  RAG: weibo media repost query hits support anchor")
+
+
+def test_weibo_rumor_warning_retrieval() -> None:
+    kb = _load_kb()
+    q = "著名演员姜文去世 享年 表演艺术家 辞世"
+    scored = _score_all(q, kb)
+    top = select_anchors(scored, top_k=3)
+    ids = [a["id"] for a in top]
+    assert "celebrity_death_hoax" in ids
+    print("  RAG: celebrity death hoax query hits warning anchor")
+
+
+def test_weibo_support_overrides_text_mismatch() -> None:
+    anchors = [
+        {
+            "anchor_type": "support",
+            "score": 2.5,
+            "id": "weibo_official_psa",
+            "title": "公安部反诈",
+        },
+    ]
+    news = NewsPost(
+        image_path="weibo.jpg",
+        headline="公安部刑侦局提醒",
+        body="遇诈骗电话直接挂断",
+        source="微博",
+        fake_type="matching",
+    )
+    model = EvaluationResult(
+        verdict="suspicious",
+        confidence=0.7,
+        reasoning="text mismatch",
+        evidence_chain=[],
+        parse_ok=True,
+        raw_text="",
+        issue_type="text_image_mismatch",
+    )
+    out = apply_fusion_policy(
+        anchors, forgery_score=0.75, model_result=model, news=news
+    )
+    assert out.verdict == "authentic", out.verdict
+    assert out.issue_type == "matching", out.issue_type
+    print("  Policy: weibo support overrides text_image_mismatch")
+
+
 def main() -> int:
     print("=== Fusion Policy & RAG Tests ===")
     test_support_blocks_fake_with_moderate_trufor()
@@ -183,6 +248,10 @@ def main() -> int:
     test_rag_sports_no_misleading_warning()
     test_rag_warning_beats_weak_support()
     test_rag_warning_only_when_support_weak()
+    test_weibo_psa_probe_skips_warning()
+    test_weibo_support_retrieval()
+    test_weibo_rumor_warning_retrieval()
+    test_weibo_support_overrides_text_mismatch()
     print("All fusion/RAG tests passed.")
     return 0
 

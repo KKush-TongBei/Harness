@@ -77,7 +77,8 @@ FUSION_PROMPT_TEMPLATE = """你是一名多模态虚假信息检测专家。请�
 5. TruFor 分数高且图文无矛盾 → issue_type=manipulated_image → 倾向 suspicious（中等分数）或 fake（极高分数且视觉异常）
 6. TruFor 分数 alone 不足以判 fake；合法锚点与图文一致时不应仅因 TruFor 判 fake
 7. 合法场景锚点与风险警示同时出现且图文一致时，以合法锚点为准
-8. 必须给出 issue_type 与可解释的证据链
+8. 来源为正规媒体/公安部等官方账号的微博转载，且图文一致时，不应因 TruFor 中等分数或口语化标题判 fake
+9. 必须给出 issue_type 与可解释的证据链
 
 请输出 JSON 格式（不要包含 markdown 代码块）：
 {{

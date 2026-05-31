@@ -7,7 +7,11 @@ from harness.context import ContextManager
 from harness.evaluation import parse_model_output
 from harness.fusion_policy import apply_fusion_policy
 from harness.news_post import NewsPost
-from harness.rag_query import build_misinformation_probe, merge_anchors
+from harness.rag_query import (
+    build_misinformation_probe,
+    build_official_support_probe,
+    merge_anchors,
+)
 from harness.state import PipelineState, StateStorage
 from harness.tools.registry import ToolRegistry
 
@@ -72,6 +76,10 @@ class ExecutionLoop:
         probe_text = state.description
         if news and news.has_text():
             probe_text = f"{probe_text}\n{news.headline}\n{news.body}"
+        official_probe = build_official_support_probe(probe_text)
+        if official_probe:
+            extra = await self.registry.search_anchors(official_probe, top_k=2)
+            anchors = merge_anchors(anchors, extra)
         probe = build_misinformation_probe(probe_text)
         if probe:
             extra = await self.registry.search_anchors(probe, top_k=2)

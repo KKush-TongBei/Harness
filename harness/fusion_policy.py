@@ -10,6 +10,15 @@ TEXT_ISSUE_TYPES = {
     "fabricated_both",
 }
 
+WEIBO_SUPPORT_IDS = {
+    "weibo_media_repost",
+    "weibo_official_psa",
+    "weibo_history_education",
+    "weibo_lifestyle_share",
+    "weibo_news_investigation",
+    "weibo_general_repost",
+}
+
 
 def _anchor_type(anchor: dict) -> str:
     return str(anchor.get("anchor_type", "support"))
@@ -23,6 +32,13 @@ def _max_score(anchors: list[dict]) -> float:
 
 def _has_anchor_id(anchors: list[dict], anchor_id: str) -> bool:
     return any(str(a.get("id", "")) == anchor_id for a in anchors)
+
+
+def _has_strong_weibo_support(support: list[dict]) -> bool:
+    return any(
+        str(a.get("id", "")) in WEIBO_SUPPORT_IDS and float(a.get("score", 0.0)) >= 2.0
+        for a in support
+    )
 
 
 def apply_fusion_policy(
@@ -66,6 +82,18 @@ def apply_fusion_policy(
         verdict = "authentic"
         issue_type = "matching"
         policy_notes.append("社交媒体压缩合法锚点命中，强制 authentic")
+
+    if (
+        news
+        and news.fake_type == "matching"
+        and _has_strong_weibo_support(support)
+        and forgery_score < 0.85
+        and verdict in ("fake", "suspicious")
+        and warning_max < 3.0
+    ):
+        verdict = "authentic"
+        issue_type = "matching"
+        policy_notes.append("微博合法场景锚点命中，覆盖 text_image_mismatch 误报")
 
     if (
         has_strong_support

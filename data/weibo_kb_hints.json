@@ -1,0 +1,59 @@
+{
+  "source": "/Volumes/Outside/FILE/SCHOOL/STUDY/code/Harness/data/weibo_test_subset.json",
+  "rumor_cases": 10,
+  "nonrumor_cases": 10,
+  "suggested_support_keywords": [
+    "文摘精选",
+    "年前更困难",
+    "老年人中风",
+    "印度猴子偷开巴士酿车祸",
+    "几乎",
+    "车毁猴亡",
+    "调查",
+    "近日印度一淘气猴子趁司机午睡",
+    "巴士停车站之际",
+    "竟坐上驾驶座开启引擎",
+    "撞上停一旁的几辆车",
+    "几乎车毁猴亡"
+  ],
+  "suggested_warning_keywords": [
+    "nbsp",
+    "只有刘胡兰说了真话",
+    "做清官",
+    "是一种境界",
+    "薄熙来",
+    "对贪污腐败",
+    "我们是零容忍",
+    "周永康",
+    "我最大缺点",
+    "就是廉洁",
+    "徐才厚",
+    "执政为民"
+  ],
+  "case_ids": {
+    "rumor": [
+      "weibo_rumor_3773960661907052",
+      "weibo_rumor_3552392198880087",
+      "weibo_rumor_3793061329127082",
+      "weibo_rumor_3875389795556571",
+      "weibo_rumor_3510026650129395",
+      "weibo_rumor_3837935646429714",
+      "weibo_rumor_3471614475837908",
+      "weibo_rumor_3686551860653652",
+      "weibo_rumor_3532262362179252",
+      "weibo_rumor_3599739104329612"
+    ],
+    "nonrumor": [
+      "weibo_nonrumor_3925380077166670",
+      "weibo_nonrumor_3924406411591189",
+      "weibo_nonrumor_3923920711148540",
+      "weibo_nonrumor_3894856701627636",
+      "weibo_nonrumor_3914154198501569",
+      "weibo_nonrumor_3930061171946800",
+      "weibo_nonrumor_3908465120259447",
+      "weibo_nonrumor_3925069195327180",
+      "weibo_nonrumor_3891566232061425",
+      "weibo_nonrumor_3928625210160387"
+    ]
+  }
+}

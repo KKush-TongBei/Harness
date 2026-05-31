@@ -41,6 +41,33 @@ async def test_rag_client() -> None:
         sports_ids = [a["id"] for a in sports.json().get("anchors", [])]
         assert "misleading_context_warning" not in sports_ids
 
+        weibo_media = tc.post(
+            "/search",
+            json={
+                "query": "据中新网 印度猴子偷开巴士 微博转载 新闻报道",
+                "top_k": 3,
+            },
+        )
+        weibo_ids = [a["id"] for a in weibo_media.json().get("anchors", [])]
+        assert "weibo_media_repost" in weibo_ids
+
+        weibo_psa = tc.post(
+            "/search",
+            json={
+                "query": "公安部 刑侦局 诈骗 提醒 扩散 官方 反诈",
+                "top_k": 3,
+            },
+        )
+        psa_ids = [a["id"] for a in weibo_psa.json().get("anchors", [])]
+        assert "weibo_official_psa" in psa_ids
+
+        rumor = tc.post(
+            "/search",
+            json={"query": "姜文 去世 享年 演员 辞世 明星", "top_k": 3},
+        )
+        rumor_ids = [a["id"] for a in rumor.json().get("anchors", [])]
+        assert "celebrity_death_hoax" in rumor_ids
+
     try:
         client = RagClient("http://127.0.0.1:8002")
         await client.health()
